@@ -230,6 +230,17 @@ function Play() {
                     </motion.button>
                   ))}
                 </div>
+                <div className="mt-4 flex flex-wrap items-center justify-between gap-2 text-xs">
+                  <motion.button
+                    whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.96 }}
+                    onClick={() => (path.length === 0 ? setPhase("investigate") : goBackStep())}
+                    className="glass rounded-full px-4 py-2 font-medium hover:text-emerald">
+                    ← Kembali {path.length === 0 ? "ke Investigasi" : "& ubah jawaban"}
+                  </motion.button>
+                  <span className="text-muted-foreground">
+                    Ragu? Kamu boleh mundur dan mencoba jawaban lain.
+                  </span>
+                </div>
               </motion.div>
             </div>
           </motion.section>
