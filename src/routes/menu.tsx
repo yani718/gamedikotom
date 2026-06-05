@@ -6,6 +6,7 @@ import { ParticleBg } from "@/components/game/ParticleBg";
 import { Watermark } from "@/components/game/Watermark";
 import { loadProfile, xpForLevel, type Profile } from "@/game/profile";
 import { organisms } from "@/data/organisms";
+import { useAuthUser } from "@/hooks/useAuthUser";
 
 export const Route = createFileRoute("/menu")({
   head: () => ({ meta: [{ title: "Dashboard — DichoLife Explorer" }, { name: "description", content: "Dashboard pemain DichoLife Explorer." }] }),
@@ -25,6 +26,7 @@ function useProfile() {
 
 function Menu() {
   const p = useProfile();
+  const { user, signOut } = useAuthUser();
   const xpNeed = xpForLevel(p.level);
   const xpPct = Math.min(100, (p.xp / xpNeed) * 100);
   const totalDone = p.played.length;
@@ -40,12 +42,21 @@ function Menu() {
       <Watermark />
       <header className="mx-auto flex max-w-6xl items-center justify-between px-6 pt-8">
         <Link to="/"><Logo size="sm" /></Link>
-        <nav className="hidden gap-2 md:flex">
+        <nav className="flex gap-2">
           {[["/gallery","Galeri"],["/profile","Profil"]].map(([to,label]) => (
             <Link key={to} to={to} className="glass rounded-full px-4 py-2 text-sm font-medium hover:text-emerald">
               {label}
             </Link>
           ))}
+          {user ? (
+            <button onClick={signOut} className="glass rounded-full px-4 py-2 text-sm hover:text-rose-300">
+              Keluar
+            </button>
+          ) : (
+            <Link to="/auth" className="rounded-full bg-emerald-grad px-4 py-2 text-sm font-bold text-primary-foreground shadow-glow">
+              Masuk
+            </Link>
+          )}
         </nav>
       </header>
 
@@ -58,8 +69,10 @@ function Menu() {
           <div className="absolute -right-20 -top-20 h-64 w-64 rounded-full bg-emerald-grad opacity-20 blur-3xl" />
           <div className="flex flex-col gap-6 md:flex-row md:items-center">
             <motion.div whileHover={{ rotate: 8, scale: 1.05 }}
-              className="grid h-24 w-24 place-items-center rounded-3xl bg-emerald-grad text-5xl shadow-glow animate-float">
-              {p.avatar}
+              className="grid h-24 w-24 place-items-center overflow-hidden rounded-3xl bg-emerald-grad text-5xl shadow-glow animate-float">
+              {p.avatarUrl
+                ? <img src={p.avatarUrl} alt={p.name} className="h-full w-full object-cover" />
+                : <span>{p.avatar}</span>}
             </motion.div>
             <div className="flex-1">
               <div className="text-sm uppercase tracking-widest text-emerald">Selamat Datang Kembali</div>

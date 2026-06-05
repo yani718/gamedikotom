@@ -24,7 +24,7 @@ function Play() {
   const [chips, setChips] = useState<string[]>([]);
   const [customNote, setCustomNote] = useState("");
   const [cursor, setCursor] = useState<DichotomousNode>(rootKey);
-  const [path, setPath] = useState<{ q: string; ans: "yes" | "no"; correct: boolean }[]>([]);
+  const [path, setPath] = useState<{ q: string; ans: "yes" | "no"; correct: boolean; node: DichotomousNode }[]>([]);
   const [wrong, setWrong] = useState(0);
   const [result, setResult] = useState<string | null>(null);
   const [showConfetti, setShowConfetti] = useState(false);
@@ -56,10 +56,11 @@ function Play() {
   }
 
   function answer(ans: "yes" | "no") {
+    if (!organism) return;
     const correctAns: "yes" | "no" = cursor.test(organism) ? "yes" : "no";
     const correct = ans === correctAns;
     if (!correct) setWrong((w) => w + 1);
-    setPath((p) => [...p, { q: cursor.question, ans, correct }]);
+    setPath((p) => [...p, { q: cursor.question, ans, correct, node: cursor }]);
     const next = ans === "yes" ? cursor.yes : cursor.no;
     if (typeof next === "string") {
       // finished
@@ -69,6 +70,14 @@ function Play() {
     } else {
       setCursor(next);
     }
+  }
+
+  function goBackStep() {
+    if (path.length === 0) return;
+    const prev = path[path.length - 1];
+    setPath((p) => p.slice(0, -1));
+    if (!prev.correct) setWrong((w) => Math.max(0, w - 1));
+    setCursor(prev.node);
   }
 
   function finishGame(leaf: string, totalWrong: number) {
@@ -220,6 +229,17 @@ function Play() {
                       <div className="pointer-events-none absolute inset-0 opacity-0 group-hover:opacity-100 animate-shimmer" />
                     </motion.button>
                   ))}
+                </div>
+                <div className="mt-4 flex flex-wrap items-center justify-between gap-2 text-xs">
+                  <motion.button
+                    whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.96 }}
+                    onClick={() => (path.length === 0 ? setPhase("investigate") : goBackStep())}
+                    className="glass rounded-full px-4 py-2 font-medium hover:text-emerald">
+                    ← Kembali {path.length === 0 ? "ke Investigasi" : "& ubah jawaban"}
+                  </motion.button>
+                  <span className="text-muted-foreground">
+                    Ragu? Kamu boleh mundur dan mencoba jawaban lain.
+                  </span>
                 </div>
               </motion.div>
             </div>

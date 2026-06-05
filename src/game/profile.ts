@@ -1,6 +1,7 @@
 export interface Profile {
   name: string;
   avatar: string;
+  avatarUrl?: string | null;
   level: number;
   xp: number;
   totalScore: number;
@@ -13,6 +14,7 @@ const KEY = "dicholife.profile.v1";
 const DEFAULT: Profile = {
   name: "Penjelajah",
   avatar: "🦊",
+  avatarUrl: null,
   level: 1,
   xp: 0,
   totalScore: 0,
