@@ -24,7 +24,7 @@ function Play() {
   const [chips, setChips] = useState<string[]>([]);
   const [customNote, setCustomNote] = useState("");
   const [cursor, setCursor] = useState<DichotomousNode>(rootKey);
-  const [path, setPath] = useState<{ q: string; ans: "yes" | "no"; correct: boolean }[]>([]);
+  const [path, setPath] = useState<{ q: string; ans: "yes" | "no"; correct: boolean; node: DichotomousNode }[]>([]);
   const [wrong, setWrong] = useState(0);
   const [result, setResult] = useState<string | null>(null);
   const [showConfetti, setShowConfetti] = useState(false);
@@ -56,10 +56,11 @@ function Play() {
   }
 
   function answer(ans: "yes" | "no") {
+    if (!organism) return;
     const correctAns: "yes" | "no" = cursor.test(organism) ? "yes" : "no";
     const correct = ans === correctAns;
     if (!correct) setWrong((w) => w + 1);
-    setPath((p) => [...p, { q: cursor.question, ans, correct }]);
+    setPath((p) => [...p, { q: cursor.question, ans, correct, node: cursor }]);
     const next = ans === "yes" ? cursor.yes : cursor.no;
     if (typeof next === "string") {
       // finished
@@ -69,6 +70,14 @@ function Play() {
     } else {
       setCursor(next);
     }
+  }
+
+  function goBackStep() {
+    if (path.length === 0) return;
+    const prev = path[path.length - 1];
+    setPath((p) => p.slice(0, -1));
+    if (!prev.correct) setWrong((w) => Math.max(0, w - 1));
+    setCursor(prev.node);
   }
 
   function finishGame(leaf: string, totalWrong: number) {
