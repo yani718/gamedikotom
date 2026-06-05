@@ -9,11 +9,23 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as SettingsRouteImport } from './routes/settings'
+import { Route as ProfileRouteImport } from './routes/profile'
 import { Route as MenuRouteImport } from './routes/menu'
 import { Route as GalleryRouteImport } from './routes/gallery'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as PlayIdRouteImport } from './routes/play.$id'
 
+const SettingsRoute = SettingsRouteImport.update({
+  id: '/settings',
+  path: '/settings',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ProfileRoute = ProfileRouteImport.update({
+  id: '/profile',
+  path: '/profile',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const MenuRoute = MenuRouteImport.update({
   id: '/menu',
   path: '/menu',
@@ -39,12 +51,16 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/gallery': typeof GalleryRoute
   '/menu': typeof MenuRoute
+  '/profile': typeof ProfileRoute
+  '/settings': typeof SettingsRoute
   '/play/$id': typeof PlayIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/gallery': typeof GalleryRoute
   '/menu': typeof MenuRoute
+  '/profile': typeof ProfileRoute
+  '/settings': typeof SettingsRoute
   '/play/$id': typeof PlayIdRoute
 }
 export interface FileRoutesById {
@@ -52,25 +68,50 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/gallery': typeof GalleryRoute
   '/menu': typeof MenuRoute
+  '/profile': typeof ProfileRoute
+  '/settings': typeof SettingsRoute
   '/play/$id': typeof PlayIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/gallery' | '/menu' | '/play/$id'
+  fullPaths: '/' | '/gallery' | '/menu' | '/profile' | '/settings' | '/play/$id'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/gallery' | '/menu' | '/play/$id'
-  id: '__root__' | '/' | '/gallery' | '/menu' | '/play/$id'
+  to: '/' | '/gallery' | '/menu' | '/profile' | '/settings' | '/play/$id'
+  id:
+    | '__root__'
+    | '/'
+    | '/gallery'
+    | '/menu'
+    | '/profile'
+    | '/settings'
+    | '/play/$id'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   GalleryRoute: typeof GalleryRoute
   MenuRoute: typeof MenuRoute
+  ProfileRoute: typeof ProfileRoute
+  SettingsRoute: typeof SettingsRoute
   PlayIdRoute: typeof PlayIdRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/settings': {
+      id: '/settings'
+      path: '/settings'
+      fullPath: '/settings'
+      preLoaderRoute: typeof SettingsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/profile': {
+      id: '/profile'
+      path: '/profile'
+      fullPath: '/profile'
+      preLoaderRoute: typeof ProfileRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/menu': {
       id: '/menu'
       path: '/menu'
@@ -106,6 +147,8 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   GalleryRoute: GalleryRoute,
   MenuRoute: MenuRoute,
+  ProfileRoute: ProfileRoute,
+  SettingsRoute: SettingsRoute,
   PlayIdRoute: PlayIdRoute,
 }
 export const routeTree = rootRouteImport
