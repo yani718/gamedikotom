@@ -40,43 +40,43 @@ function Menu() {
     <div className="relative min-h-screen">
       <ParticleBg density={18} />
       <Watermark />
-      <header className="mx-auto flex max-w-6xl items-center justify-between px-6 pt-8">
+      <header className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-3 px-4 pt-6 sm:px-6 sm:pt-8">
         <Link to="/"><Logo size="sm" /></Link>
-        <nav className="flex gap-2">
+        <nav className="flex flex-wrap gap-2">
           {[["/gallery","Galeri"],["/profile","Profil"]].map(([to,label]) => (
-            <Link key={to} to={to} className="glass rounded-full px-4 py-2 text-sm font-medium hover:text-emerald">
+            <Link key={to} to={to} className="glass rounded-full px-3 py-1.5 text-xs font-medium hover:text-emerald sm:px-4 sm:py-2 sm:text-sm">
               {label}
             </Link>
           ))}
           {user ? (
-            <button onClick={signOut} className="glass rounded-full px-4 py-2 text-sm hover:text-rose-300">
+            <button onClick={signOut} className="glass rounded-full px-3 py-1.5 text-xs hover:text-rose-300 sm:px-4 sm:py-2 sm:text-sm">
               Keluar
             </button>
           ) : (
-            <Link to="/auth" className="rounded-full bg-emerald-grad px-4 py-2 text-sm font-bold text-primary-foreground shadow-glow">
+            <Link to="/auth" className="rounded-full bg-emerald-grad px-3 py-1.5 text-xs font-bold text-primary-foreground shadow-glow sm:px-4 sm:py-2 sm:text-sm">
               Masuk
             </Link>
           )}
         </nav>
       </header>
 
-      <main className="mx-auto max-w-6xl px-6 py-10">
+      <main className="mx-auto max-w-6xl px-4 py-8 sm:px-6 sm:py-10">
         {/* Player card */}
         <motion.section
           initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
-          className="glass-strong relative overflow-hidden rounded-3xl p-6 md:p-8"
+          className="glass-strong relative overflow-hidden rounded-3xl p-5 sm:p-6 md:p-8"
         >
           <div className="absolute -right-20 -top-20 h-64 w-64 rounded-full bg-emerald-grad opacity-20 blur-3xl" />
-          <div className="flex flex-col gap-6 md:flex-row md:items-center">
+          <div className="flex flex-col gap-5 md:flex-row md:items-center md:gap-6">
             <motion.div whileHover={{ rotate: 8, scale: 1.05 }}
-              className="grid h-24 w-24 place-items-center overflow-hidden rounded-3xl bg-emerald-grad text-5xl shadow-glow animate-float">
+              className="grid h-20 w-20 shrink-0 place-items-center overflow-hidden rounded-3xl bg-emerald-grad text-4xl shadow-glow animate-float sm:h-24 sm:w-24 sm:text-5xl">
               {p.avatarUrl
                 ? <img src={p.avatarUrl} alt={p.name} className="h-full w-full object-cover" />
                 : <span>{p.avatar}</span>}
             </motion.div>
-            <div className="flex-1">
+            <div className="min-w-0 flex-1">
               <div className="text-sm uppercase tracking-widest text-emerald">Selamat Datang Kembali</div>
-              <h2 className="font-display text-3xl font-black">{p.name}</h2>
+              <h2 className="break-words font-display text-2xl font-black sm:text-3xl">{p.name}</h2>
               <div className="mt-3 flex flex-wrap items-center gap-3 text-sm">
                 <span className="glass rounded-full px-3 py-1">Level <b className="text-emerald">{p.level}</b></span>
                 <span className="glass rounded-full px-3 py-1">Total Skor <b className="text-gold">{p.totalScore}</b></span>

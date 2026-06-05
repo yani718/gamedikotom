@@ -27,7 +27,7 @@ function Splash() {
       <ParticleBg density={36} />
       <Watermark />
 
-      <main className="mx-auto flex min-h-screen max-w-5xl flex-col items-center justify-center px-6 py-12 text-center">
+      <main className="mx-auto flex min-h-screen max-w-5xl flex-col items-center justify-center px-4 py-10 text-center sm:px-6 sm:py-12">
         <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7 }}>
           <Logo size="lg" />
         </motion.div>
@@ -36,7 +36,7 @@ function Splash() {
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.3, duration: 0.8 }}
-          className="mt-10 font-display text-4xl font-black leading-tight md:text-6xl"
+          className="mt-10 font-display text-3xl font-black leading-tight sm:text-4xl md:text-6xl"
         >
           Selamat Datang di Dunia{" "}
           <span className="text-gradient-emerald">Klasifikasi</span>

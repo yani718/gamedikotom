@@ -76,7 +76,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
   head: () => ({
     meta: [
       { charSet: "utf-8" },
-      { name: "viewport", content: "width=device-width, initial-scale=1" },
+      { name: "viewport", content: "width=device-width, initial-scale=1, viewport-fit=cover" },
       { title: "DichoLife Explorer — Klasifikasi Makhluk Hidup" },
       { name: "description", content: "Game edukasi premium klasifikasi makhluk hidup dengan kunci dikotom digital interaktif." },
       { name: "author", content: "An1Game" },

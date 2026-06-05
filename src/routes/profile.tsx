@@ -156,41 +156,41 @@ function ProfilePage() {
     <div className="relative min-h-screen">
       <ParticleBg density={14} />
       <Watermark />
-      <header className="mx-auto flex max-w-6xl items-center justify-between gap-3 px-6 pt-8">
+      <header className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-3 px-4 pt-6 sm:px-6 sm:pt-8">
         <Link to="/menu"><Logo size="sm" /></Link>
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2">
           {user ? (
-            <button onClick={signOut} className="glass rounded-full px-4 py-2 text-sm hover:text-rose-300">
+            <button onClick={signOut} className="glass rounded-full px-3 py-1.5 text-xs hover:text-rose-300 sm:px-4 sm:py-2 sm:text-sm">
               Keluar
             </button>
           ) : (
-            <Link to="/auth" className="rounded-full bg-emerald-grad px-4 py-2 text-sm font-bold text-primary-foreground shadow-glow">
-              Masuk dengan Google
+            <Link to="/auth" className="rounded-full bg-emerald-grad px-3 py-1.5 text-xs font-bold text-primary-foreground shadow-glow sm:px-4 sm:py-2 sm:text-sm">
+              Masuk Google
             </Link>
           )}
-          <Link to="/menu" className="glass rounded-full px-4 py-2 text-sm">← Dashboard</Link>
+          <Link to="/menu" className="glass rounded-full px-3 py-1.5 text-xs sm:px-4 sm:py-2 sm:text-sm">← Dashboard</Link>
         </div>
       </header>
 
-      <main className="mx-auto max-w-6xl space-y-6 px-6 py-8">
+      <main className="mx-auto max-w-6xl space-y-6 px-4 py-6 sm:px-6 sm:py-8">
         <motion.section initial={{ opacity:0, y:14 }} animate={{ opacity:1, y:0 }}
-          className="glass-strong rounded-3xl p-6 md:p-8">
-          <div className="grid items-center gap-6 md:grid-cols-[auto_1fr]">
-            <div className="relative grid h-28 w-28 place-items-center overflow-hidden rounded-3xl bg-emerald-grad text-6xl shadow-glow animate-float">
+          className="glass-strong rounded-3xl p-5 sm:p-6 md:p-8">
+          <div className="grid items-center gap-5 sm:gap-6 md:grid-cols-[auto_1fr]">
+            <div className="relative mx-auto grid h-24 w-24 shrink-0 place-items-center overflow-hidden rounded-3xl bg-emerald-grad text-5xl shadow-glow animate-float sm:h-28 sm:w-28 sm:text-6xl md:mx-0">
               {p.avatarUrl ? (
                 <img src={p.avatarUrl} alt={p.name} className="h-full w-full object-cover" />
               ) : (
                 <span>{p.avatar}</span>
               )}
             </div>
-            <div>
+            <div className="min-w-0">
               <div className="flex flex-wrap items-center gap-2">
                 <input
                   value={nameDraft}
                   onChange={(e) => setNameDraft(e.target.value.slice(0, 24))}
                   maxLength={24}
                   placeholder="Nama tampilan"
-                  className="min-w-0 flex-1 bg-transparent font-display text-3xl font-black focus:outline-none"
+                  className="min-w-0 flex-1 bg-transparent font-display text-2xl font-black focus:outline-none sm:text-3xl"
                 />
                 {nameDraft.trim() !== p.name && (
                   <button
