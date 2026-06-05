@@ -98,27 +98,27 @@ function Play() {
     <div className="relative min-h-screen pb-20">
       <ParticleBg density={16} />
       <Watermark />
-      <header className="mx-auto flex max-w-6xl items-center justify-between px-6 pt-8">
+      <header className="mx-auto flex max-w-6xl items-center justify-between gap-3 px-4 pt-6 sm:px-6 sm:pt-8">
         <Link to="/menu"><Logo size="sm" /></Link>
-        <Link to="/gallery" className="glass rounded-full px-4 py-2 text-sm">← Galeri</Link>
+        <Link to="/gallery" className="glass rounded-full px-3 py-1.5 text-xs sm:px-4 sm:py-2 sm:text-sm">← Galeri</Link>
       </header>
 
-      <main className="mx-auto max-w-5xl px-6 py-8">
+      <main className="mx-auto max-w-5xl px-4 py-6 sm:px-6 sm:py-8">
         {/* Subject card */}
         <motion.section
           initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
-          className="glass-strong relative grid items-center gap-6 overflow-hidden rounded-3xl p-6 md:grid-cols-[260px_1fr] md:p-8"
+          className="glass-strong relative grid items-center gap-5 overflow-hidden rounded-3xl p-5 sm:p-6 md:grid-cols-[220px_1fr] md:gap-6 md:p-8 lg:grid-cols-[260px_1fr]"
         >
-          <div className="relative mx-auto aspect-square w-full max-w-[260px] overflow-hidden rounded-3xl shadow-glow"
+          <div className="relative mx-auto aspect-square w-full max-w-[200px] overflow-hidden rounded-3xl shadow-glow sm:max-w-[240px] md:max-w-none"
             style={{ background: `radial-gradient(circle at 50% 35%, ${organism.warna}, transparent 70%), linear-gradient(160deg, oklch(0.20 0.04 255), oklch(0.10 0.04 250))` }}>
-            <motion.div className="absolute inset-0 grid place-items-center text-[140px]"
+            <motion.div className="absolute inset-0 grid place-items-center text-[100px] sm:text-[120px] md:text-[140px]"
               animate={{ y: [0, -8, 0] }} transition={{ duration: 4, repeat: Infinity }}>
               {organism.emoji}
             </motion.div>
           </div>
-          <div>
+          <div className="min-w-0">
             <div className="text-xs uppercase tracking-[0.3em] text-emerald">Subjek Investigasi · {organism.difficulty}</div>
-            <h1 className="mt-1 font-display text-4xl font-black">{organism.nama}</h1>
+            <h1 className="mt-1 break-words font-display text-3xl font-black sm:text-4xl">{organism.nama}</h1>
             <p className="italic text-muted-foreground">{organism.namaIlmiah}</p>
             <p className="mt-3 max-w-xl text-sm text-muted-foreground">{organism.deskripsi}</p>
             <div className="mt-4 flex flex-wrap gap-2 text-xs">
@@ -130,9 +130,9 @@ function Play() {
         </motion.section>
 
         {/* Phase progress */}
-        <div className="mt-6 flex items-center gap-2 text-xs">
+        <div className="mt-6 flex items-center gap-1.5 text-[11px] sm:gap-2 sm:text-xs">
           {(["investigate","key","result"] as Phase[]).map((ph, i) => (
-            <div key={ph} className={`flex-1 rounded-full px-3 py-2 text-center font-medium ${
+            <div key={ph} className={`flex-1 rounded-full px-2 py-2 text-center font-medium sm:px-3 ${
               phase === ph ? "bg-emerald-grad text-primary-foreground shadow-glow" : "glass text-muted-foreground"
             }`}>
               {i+1}. {ph === "investigate" ? "Investigasi" : ph === "key" ? "Kunci Dikotom" : "Hasil"}
@@ -144,8 +144,8 @@ function Play() {
         {phase === "investigate" && (
           <motion.section key="inv" initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}
             className="mt-6 grid gap-6">
-            <div className="glass rounded-3xl p-6">
-              <h2 className="font-display text-xl font-bold">🔬 Pilih Karakteristik Organisme</h2>
+            <div className="glass rounded-3xl p-5 sm:p-6">
+              <h2 className="font-display text-lg font-bold sm:text-xl">🔬 Pilih Karakteristik Organisme</h2>
               <p className="text-sm text-muted-foreground">Tap chip yang menurutmu sesuai. Kamu boleh memilih lebih dari satu.</p>
               <div className="mt-4 flex flex-wrap gap-2">
                 {ALL_CHIPS.map((c) => {
@@ -163,8 +163,8 @@ function Play() {
               </div>
             </div>
 
-            <div className="glass rounded-3xl p-6">
-              <h2 className="font-display text-xl font-bold">✍️ Tulis Ciri Tambahan</h2>
+            <div className="glass rounded-3xl p-5 sm:p-6">
+              <h2 className="font-display text-lg font-bold sm:text-xl">✍️ Tulis Ciri Tambahan</h2>
               <p className="text-sm text-muted-foreground">Pisahkan dengan koma. Contoh: <i>melahirkan, hidup di savana, memiliki rambut</i></p>
               <textarea value={customNote} onChange={(e) => setCustomNote(e.target.value)}
                 rows={3}
@@ -175,10 +175,10 @@ function Play() {
               </div>
             </div>
 
-            <div className="flex justify-end">
+            <div className="flex justify-stretch sm:justify-end">
               <motion.button whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.96 }}
                 onClick={() => setPhase("key")}
-                className="rounded-2xl bg-emerald-grad px-8 py-4 font-display font-bold text-primary-foreground shadow-glow">
+                className="w-full rounded-2xl bg-emerald-grad px-6 py-4 font-display font-bold text-primary-foreground shadow-glow sm:w-auto sm:px-8">
                 Lanjut ke Kunci Dikotom →
               </motion.button>
             </div>
@@ -189,9 +189,9 @@ function Play() {
           <motion.section key="key" initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}
             className="mt-6 grid gap-6">
             {/* path so far */}
-            <div className="glass rounded-3xl p-6">
+            <div className="glass rounded-3xl p-5 sm:p-6">
               <div className="mb-3 flex items-center justify-between">
-                <h2 className="font-display text-xl font-bold">🌳 Pohon Klasifikasi</h2>
+                <h2 className="font-display text-lg font-bold sm:text-xl">🌳 Pohon Klasifikasi</h2>
                 <span className="text-xs text-muted-foreground">Langkah {path.length + 1} · Salah {wrong}</span>
               </div>
               <div className="flex flex-col gap-2">
@@ -207,15 +207,15 @@ function Play() {
               </div>
 
               <motion.div key={cursor.id} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}
-                className="mt-5 rounded-2xl bg-gradient-to-br from-emerald/15 to-transparent p-5 ring-1 ring-emerald/30">
+                className="mt-5 rounded-2xl bg-gradient-to-br from-emerald/15 to-transparent p-4 ring-1 ring-emerald/30 sm:p-5">
                 <div className="text-3xl">{cursor.emoji ?? "❓"}</div>
-                <div className="mt-2 font-display text-xl font-bold">{cursor.question}</div>
+                <div className="mt-2 font-display text-lg font-bold sm:text-xl">{cursor.question}</div>
                 <div className="mt-5 grid gap-3 sm:grid-cols-2">
                   {(["yes","no"] as const).map((side) => (
                     <motion.button key={side}
                       whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.96 }}
                       onClick={() => answer(side)}
-                      className={`group relative overflow-hidden rounded-2xl p-5 text-left transition ${
+                      className={`group relative overflow-hidden rounded-2xl p-4 text-left transition sm:p-5 ${
                         side === "yes"
                           ? "bg-emerald-grad text-primary-foreground shadow-glow"
                           : "glass hover:border-emerald/40"
