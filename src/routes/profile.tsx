@@ -8,6 +8,7 @@ import { loadProfile, saveProfile, xpForLevel, type Profile } from "@/game/profi
 import { organisms } from "@/data/organisms";
 import { useAuthUser, upsertMyScore } from "@/hooks/useAuthUser";
 import { supabase } from "@/integrations/supabase/client";
+import { useIsAdmin } from "@/hooks/useIsAdmin";
 
 export const Route = createFileRoute("/profile")({
   head: () => ({ meta: [{ title: "Profil Pemain — DichoLife Explorer" }, { name: "description", content: "Profil, badge, dan riwayat permainan." }] }),
@@ -28,6 +29,9 @@ interface LeaderRow {
 function ProfilePage() {
   const [p, setP] = useState<Profile>(() => loadProfile());
   const { user, profile, signOut, refreshProfile } = useAuthUser();
+  const { isAdmin } = useIsAdmin(user?.id);
+  const [claiming, setClaiming] = useState(false);
+  const [claimMsg, setClaimMsg] = useState<string | null>(null);
   const [savingName, setSavingName] = useState(false);
   const [nameDraft, setNameDraft] = useState(p.name);
   const [uploading, setUploading] = useState(false);
@@ -151,6 +155,24 @@ function ProfilePage() {
   }
 
   const myRank = user ? leaders.findIndex((l) => l.user_id === user.id) + 1 : 0;
+
+  async function claimAdmin() {
+    if (!user) return;
+    setClaiming(true);
+    setClaimMsg(null);
+    const { data, error } = await supabase.rpc("claim_admin_if_first");
+    setClaiming(false);
+    if (error) {
+      setClaimMsg("❌ " + error.message);
+      return;
+    }
+    if (data === true) {
+      setClaimMsg("✅ Berhasil! Kamu sekarang admin. Refresh halaman.");
+      setTimeout(() => window.location.reload(), 1500);
+    } else {
+      setClaimMsg("ℹ️ Admin sudah pernah diklaim sebelumnya.");
+    }
+  }
 
   return (
     <div className="relative min-h-screen">
