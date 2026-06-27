@@ -264,6 +264,46 @@ function ProfilePage() {
           </div>
         </motion.section>
 
+        {/* Quick actions: multiplayer + admin */}
+        <section className="grid gap-3 sm:grid-cols-2">
+          <Link to="/rooms" className="glass flex items-center gap-3 rounded-2xl p-4 hover:border-emerald/40">
+            <div className="text-3xl">👥</div>
+            <div className="min-w-0">
+              <div className="font-display font-bold">Mode Berkelompok</div>
+              <div className="text-xs text-muted-foreground">Buat / gabung room dengan kode 6 digit</div>
+            </div>
+          </Link>
+          {user && (
+            isAdmin ? (
+              <Link to="/admin" className="glass flex items-center gap-3 rounded-2xl p-4 ring-1 ring-gold/30 hover:border-gold/40">
+                <div className="text-3xl">⚙️</div>
+                <div className="min-w-0">
+                  <div className="font-display font-bold text-gold">Panel Admin</div>
+                  <div className="text-xs text-muted-foreground">Pantau pemain & room realtime</div>
+                </div>
+              </Link>
+            ) : (
+              <div className="glass rounded-2xl p-4">
+                <div className="flex items-center gap-3">
+                  <div className="text-3xl">🛡️</div>
+                  <div className="min-w-0 flex-1">
+                    <div className="font-display font-bold">Klaim sebagai Admin</div>
+                    <div className="text-xs text-muted-foreground">Hanya pengguna pertama yang berhasil.</div>
+                  </div>
+                  <button
+                    onClick={claimAdmin}
+                    disabled={claiming}
+                    className="rounded-full bg-emerald-grad px-4 py-2 text-xs font-bold text-primary-foreground shadow-glow disabled:opacity-50"
+                  >
+                    {claiming ? "..." : "Klaim"}
+                  </button>
+                </div>
+                {claimMsg && <div className="mt-2 text-xs">{claimMsg}</div>}
+              </div>
+            )
+          )}
+        </section>
+
         <section className="grid gap-6 md:grid-cols-2">
           <div className="glass rounded-3xl p-6">
             <h2 className="mb-3 font-display text-xl font-bold">🏅 Badge</h2>
