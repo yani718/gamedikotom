@@ -10,16 +10,24 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as SettingsRouteImport } from './routes/settings'
+import { Route as RoomsRouteImport } from './routes/rooms'
 import { Route as ProfileRouteImport } from './routes/profile'
 import { Route as MenuRouteImport } from './routes/menu'
 import { Route as GalleryRouteImport } from './routes/gallery'
 import { Route as AuthRouteImport } from './routes/auth'
+import { Route as AdminRouteImport } from './routes/admin'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as RoomsCodeRouteImport } from './routes/rooms.$code'
 import { Route as PlayIdRouteImport } from './routes/play.$id'
 
 const SettingsRoute = SettingsRouteImport.update({
   id: '/settings',
   path: '/settings',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RoomsRoute = RoomsRouteImport.update({
+  id: '/rooms',
+  path: '/rooms',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ProfileRoute = ProfileRouteImport.update({
@@ -42,10 +50,20 @@ const AuthRoute = AuthRouteImport.update({
   path: '/auth',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdminRoute = AdminRouteImport.update({
+  id: '/admin',
+  path: '/admin',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
+} as any)
+const RoomsCodeRoute = RoomsCodeRouteImport.update({
+  id: '/$code',
+  path: '/$code',
+  getParentRoute: () => RoomsRoute,
 } as any)
 const PlayIdRoute = PlayIdRouteImport.update({
   id: '/play/$id',
@@ -55,68 +73,88 @@ const PlayIdRoute = PlayIdRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/admin': typeof AdminRoute
   '/auth': typeof AuthRoute
   '/gallery': typeof GalleryRoute
   '/menu': typeof MenuRoute
   '/profile': typeof ProfileRoute
+  '/rooms': typeof RoomsRouteWithChildren
   '/settings': typeof SettingsRoute
   '/play/$id': typeof PlayIdRoute
+  '/rooms/$code': typeof RoomsCodeRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/admin': typeof AdminRoute
   '/auth': typeof AuthRoute
   '/gallery': typeof GalleryRoute
   '/menu': typeof MenuRoute
   '/profile': typeof ProfileRoute
+  '/rooms': typeof RoomsRouteWithChildren
   '/settings': typeof SettingsRoute
   '/play/$id': typeof PlayIdRoute
+  '/rooms/$code': typeof RoomsCodeRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/admin': typeof AdminRoute
   '/auth': typeof AuthRoute
   '/gallery': typeof GalleryRoute
   '/menu': typeof MenuRoute
   '/profile': typeof ProfileRoute
+  '/rooms': typeof RoomsRouteWithChildren
   '/settings': typeof SettingsRoute
   '/play/$id': typeof PlayIdRoute
+  '/rooms/$code': typeof RoomsCodeRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/admin'
     | '/auth'
     | '/gallery'
     | '/menu'
     | '/profile'
+    | '/rooms'
     | '/settings'
     | '/play/$id'
+    | '/rooms/$code'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/admin'
     | '/auth'
     | '/gallery'
     | '/menu'
     | '/profile'
+    | '/rooms'
     | '/settings'
     | '/play/$id'
+    | '/rooms/$code'
   id:
     | '__root__'
     | '/'
+    | '/admin'
     | '/auth'
     | '/gallery'
     | '/menu'
     | '/profile'
+    | '/rooms'
     | '/settings'
     | '/play/$id'
+    | '/rooms/$code'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AdminRoute: typeof AdminRoute
   AuthRoute: typeof AuthRoute
   GalleryRoute: typeof GalleryRoute
   MenuRoute: typeof MenuRoute
   ProfileRoute: typeof ProfileRoute
+  RoomsRoute: typeof RoomsRouteWithChildren
   SettingsRoute: typeof SettingsRoute
   PlayIdRoute: typeof PlayIdRoute
 }
@@ -128,6 +166,13 @@ declare module '@tanstack/react-router' {
       path: '/settings'
       fullPath: '/settings'
       preLoaderRoute: typeof SettingsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/rooms': {
+      id: '/rooms'
+      path: '/rooms'
+      fullPath: '/rooms'
+      preLoaderRoute: typeof RoomsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/profile': {
@@ -158,12 +203,26 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/admin': {
+      id: '/admin'
+      path: '/admin'
+      fullPath: '/admin'
+      preLoaderRoute: typeof AdminRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/rooms/$code': {
+      id: '/rooms/$code'
+      path: '/$code'
+      fullPath: '/rooms/$code'
+      preLoaderRoute: typeof RoomsCodeRouteImport
+      parentRoute: typeof RoomsRoute
     }
     '/play/$id': {
       id: '/play/$id'
@@ -175,25 +234,27 @@ declare module '@tanstack/react-router' {
   }
 }
 
+interface RoomsRouteChildren {
+  RoomsCodeRoute: typeof RoomsCodeRoute
+}
+
+const RoomsRouteChildren: RoomsRouteChildren = {
+  RoomsCodeRoute: RoomsCodeRoute,
+}
+
+const RoomsRouteWithChildren = RoomsRoute._addFileChildren(RoomsRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AdminRoute: AdminRoute,
   AuthRoute: AuthRoute,
   GalleryRoute: GalleryRoute,
   MenuRoute: MenuRoute,
   ProfileRoute: ProfileRoute,
+  RoomsRoute: RoomsRouteWithChildren,
   SettingsRoute: SettingsRoute,
   PlayIdRoute: PlayIdRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}

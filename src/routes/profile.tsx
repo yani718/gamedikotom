@@ -8,6 +8,7 @@ import { loadProfile, saveProfile, xpForLevel, type Profile } from "@/game/profi
 import { organisms } from "@/data/organisms";
 import { useAuthUser, upsertMyScore } from "@/hooks/useAuthUser";
 import { supabase } from "@/integrations/supabase/client";
+import { useIsAdmin } from "@/hooks/useIsAdmin";
 
 export const Route = createFileRoute("/profile")({
   head: () => ({ meta: [{ title: "Profil Pemain — DichoLife Explorer" }, { name: "description", content: "Profil, badge, dan riwayat permainan." }] }),
@@ -28,6 +29,9 @@ interface LeaderRow {
 function ProfilePage() {
   const [p, setP] = useState<Profile>(() => loadProfile());
   const { user, profile, signOut, refreshProfile } = useAuthUser();
+  const { isAdmin } = useIsAdmin(user?.id);
+  const [claiming, setClaiming] = useState(false);
+  const [claimMsg, setClaimMsg] = useState<string | null>(null);
   const [savingName, setSavingName] = useState(false);
   const [nameDraft, setNameDraft] = useState(p.name);
   const [uploading, setUploading] = useState(false);
@@ -152,6 +156,24 @@ function ProfilePage() {
 
   const myRank = user ? leaders.findIndex((l) => l.user_id === user.id) + 1 : 0;
 
+  async function claimAdmin() {
+    if (!user) return;
+    setClaiming(true);
+    setClaimMsg(null);
+    const { data, error } = await supabase.rpc("claim_admin_if_first");
+    setClaiming(false);
+    if (error) {
+      setClaimMsg("❌ " + error.message);
+      return;
+    }
+    if (data === true) {
+      setClaimMsg("✅ Berhasil! Kamu sekarang admin. Refresh halaman.");
+      setTimeout(() => window.location.reload(), 1500);
+    } else {
+      setClaimMsg("ℹ️ Admin sudah pernah diklaim sebelumnya.");
+    }
+  }
+
   return (
     <div className="relative min-h-screen">
       <ParticleBg density={14} />
@@ -241,6 +263,46 @@ function ProfilePage() {
             </div>
           </div>
         </motion.section>
+
+        {/* Quick actions: multiplayer + admin */}
+        <section className="grid gap-3 sm:grid-cols-2">
+          <Link to="/rooms" className="glass flex items-center gap-3 rounded-2xl p-4 hover:border-emerald/40">
+            <div className="text-3xl">👥</div>
+            <div className="min-w-0">
+              <div className="font-display font-bold">Mode Berkelompok</div>
+              <div className="text-xs text-muted-foreground">Buat / gabung room dengan kode 6 digit</div>
+            </div>
+          </Link>
+          {user && (
+            isAdmin ? (
+              <Link to="/admin" className="glass flex items-center gap-3 rounded-2xl p-4 ring-1 ring-gold/30 hover:border-gold/40">
+                <div className="text-3xl">⚙️</div>
+                <div className="min-w-0">
+                  <div className="font-display font-bold text-gold">Panel Admin</div>
+                  <div className="text-xs text-muted-foreground">Pantau pemain & room realtime</div>
+                </div>
+              </Link>
+            ) : (
+              <div className="glass rounded-2xl p-4">
+                <div className="flex items-center gap-3">
+                  <div className="text-3xl">🛡️</div>
+                  <div className="min-w-0 flex-1">
+                    <div className="font-display font-bold">Klaim sebagai Admin</div>
+                    <div className="text-xs text-muted-foreground">Hanya pengguna pertama yang berhasil.</div>
+                  </div>
+                  <button
+                    onClick={claimAdmin}
+                    disabled={claiming}
+                    className="rounded-full bg-emerald-grad px-4 py-2 text-xs font-bold text-primary-foreground shadow-glow disabled:opacity-50"
+                  >
+                    {claiming ? "..." : "Klaim"}
+                  </button>
+                </div>
+                {claimMsg && <div className="mt-2 text-xs">{claimMsg}</div>}
+              </div>
+            )
+          )}
+        </section>
 
         <section className="grid gap-6 md:grid-cols-2">
           <div className="glass rounded-3xl p-6">
