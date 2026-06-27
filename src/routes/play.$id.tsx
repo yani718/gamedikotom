@@ -431,6 +431,3 @@ function Confetti() {
     </div>
   );
 }
-
-// avoid unused warning
-void organisms;
