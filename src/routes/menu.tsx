@@ -7,6 +7,7 @@ import { Watermark } from "@/components/game/Watermark";
 import { loadProfile, xpForLevel, type Profile } from "@/game/profile";
 import { organisms } from "@/data/organisms";
 import { useAuthUser } from "@/hooks/useAuthUser";
+import { useIsAdmin } from "@/hooks/useIsAdmin";
 
 export const Route = createFileRoute("/menu")({
   head: () => ({ meta: [{ title: "Dashboard — DichoLife Explorer" }, { name: "description", content: "Dashboard pemain DichoLife Explorer." }] }),
@@ -27,6 +28,7 @@ function useProfile() {
 function Menu() {
   const p = useProfile();
   const { user, signOut } = useAuthUser();
+  const { isAdmin } = useIsAdmin(user?.id);
   const xpNeed = xpForLevel(p.level);
   const xpPct = Math.min(100, (p.xp / xpNeed) * 100);
   const totalDone = p.played.length;
@@ -43,11 +45,16 @@ function Menu() {
       <header className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-3 px-4 pt-6 sm:px-6 sm:pt-8">
         <Link to="/"><Logo size="sm" /></Link>
         <nav className="flex flex-wrap gap-2">
-          {[["/gallery","Galeri"],["/profile","Profil"]].map(([to,label]) => (
+          {[["/gallery","Galeri"],["/rooms","Grup"],["/profile","Profil"]].map(([to,label]) => (
             <Link key={to} to={to} className="glass rounded-full px-3 py-1.5 text-xs font-medium hover:text-emerald sm:px-4 sm:py-2 sm:text-sm">
               {label}
             </Link>
           ))}
+          {isAdmin && (
+            <Link to="/admin" className="glass rounded-full bg-gold/15 px-3 py-1.5 text-xs font-medium text-gold ring-1 ring-gold/30 sm:px-4 sm:py-2 sm:text-sm">
+              ⚙️ Admin
+            </Link>
+          )}
           {user ? (
             <button onClick={signOut} className="glass rounded-full px-3 py-1.5 text-xs hover:text-rose-300 sm:px-4 sm:py-2 sm:text-sm">
               Keluar
