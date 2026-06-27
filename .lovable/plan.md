@@ -1,81 +1,49 @@
-# Rencana Perubahan DichoLife Explorer
+## Rencana Fitur Multiplayer + Panel Admin + Timer
 
-Saya akan menambahkan 3 hal yang Anda minta. Karena **Login Google** dan **Leaderboard nyata (lintas pemain)** memerlukan backend, saya akan mengaktifkan **Lovable Cloud** (database + autentikasi terkelola, tanpa setup tambahan).
+Saya akan menambahkan 3 fitur besar ke DichoLife Explorer:
 
----
+### 1. Mode Bermain Berkelompok (Room / Lobby)
+- Halaman baru **`/rooms`** — pemain bisa membuat room atau gabung pakai **kode 6 digit**.
+- Setiap room: host (pembuat), daftar peserta (min 2 orang untuk mulai), organisme yang dipilih, status (`waiting` / `playing` / `finished`).
+- Realtime via Supabase: ketika ada yang join/leave, semua pemain langsung lihat update.
+- Saat host klik **"Mulai Permainan"**, semua peserta otomatis masuk ke halaman play dengan organisme yang sama.
 
-## 1. Halaman Profil — Edit Nama & Upload Foto
+### 2. Timer Saat Game Dimulai
+- Di halaman play, ada countdown **berjalan dari 0** (atau batas waktu yang host pilih: 60/120/300 detik).
+- Tampil di atas kartu subjek, bergaya pill berwarna hijau→kuning→merah saat waktu menipis.
+- Skor mendapat **bonus kecepatan**: makin cepat selesai, makin tinggi bonus.
+- Untuk mode room, hasil semua peserta dikumpulkan dan ditampilkan ranking room di akhir.
 
-- Field nama sudah bisa diedit; akan saya tambahkan tombol **Simpan** yang jelas + validasi (min 2, maks 24 karakter).
-- Tambah opsi **Upload Foto** di samping pilihan avatar emoji:
-  - Tombol "📷 Unggah Foto" → memilih file gambar dari perangkat.
-  - Disimpan sebagai data URL di profil (lokal) **dan** ke Lovable Cloud Storage bila user login, agar tampil di leaderboard.
-  - Foto kustom dipakai sebagai avatar bulat (menggantikan emoji jika ada).
+### 3. Panel Admin Pemilik Game
+- Email pemilik (Anda) jadi **admin** otomatis lewat tabel `user_roles` + fungsi `has_role` (aman, tidak bisa dipalsukan dari klien).
+- Halaman baru **`/admin`** hanya bisa diakses admin:
+  - Statistik total: jumlah pemain, room aktif, total game dimainkan.
+  - Daftar **semua pemain** (nama, foto, level, skor, terakhir aktif).
+  - Daftar **room aktif** secara realtime (siapa host, siapa peserta, status, organisme).
+  - Tombol untuk **menutup room** atau **kick pemain** jika perlu.
 
-## 2. Halaman Permainan — Tombol Kembali di Kunci Dikotom
+### Detail Teknis (untuk referensi)
 
-Di fase **Kunci Dikotom** (`src/routes/play.$id.tsx`):
-- Tambah tombol **← Kembali** di setiap langkah pertanyaan (kecuali langkah pertama).
-- Menekan tombol mengembalikan ke node sebelumnya dan menghapus jawaban terakhir, sehingga pemain bisa memilih jawaban berbeda.
-- Tambah indikator "Langkah X dari sekian" + animasi transisi mundur.
+**Migrasi DB baru:**
+- `app_role` enum (`admin`, `player`)
+- `user_roles` (id, user_id, role) + RLS + fungsi `has_role()` SECURITY DEFINER
+- `rooms` (id, code unik 6-digit, host_id, organism_id, status, time_limit_sec, started_at, finished_at)
+- `room_players` (room_id, user_id, joined_at, finished_at, score, result_leaf)
+- Realtime di-enable untuk `rooms` dan `room_players`
+- Trigger: saat user baru dengan email pemilik daftar → otomatis dapat role admin (atau seed manual sekali).
 
-## 3. Login Google + Leaderboard Nyata
+**File baru/diubah:**
+- `src/routes/rooms.tsx` — daftar room + buat/gabung
+- `src/routes/rooms.$code.tsx` — lobby room
+- `src/routes/play.$id.tsx` — ditambah parameter `?room=CODE`, timer, bonus kecepatan
+- `src/routes/admin.tsx` — panel admin (cek `has_role` lewat server function)
+- `src/components/game/Timer.tsx` — komponen timer reusable
+- `src/lib/rooms.functions.ts` — server functions: createRoom, joinRoom, startRoom, leaveRoom, submitResult
+- `src/lib/admin.functions.ts` — listPlayers, listRooms, kickPlayer, closeRoom
+- `src/routes/menu.tsx` — tombol "🎮 Main Berkelompok" + (jika admin) tombol "🛡 Admin"
 
-### Aktifkan Lovable Cloud
-Untuk menyimpan akun pemain dan skor yang bisa dibandingkan antar pemain.
+### Pertanyaan sebelum mulai
+Saya butuh **email akun Anda** (yang dipakai login Google) supaya bisa jadi admin otomatis. Atau saya bisa buat tombol "klaim sebagai admin" yang hanya berfungsi pertama kali (jika belum ada admin di sistem). Mana yang Anda pilih?
 
-### Autentikasi
-- Tambah route `/auth` dengan tombol **Masuk dengan Google**.
-- Di Dashboard & Profil: tampilkan status login; tombol "Masuk" jika belum, "Keluar" jika sudah.
-- Profil pengguna yang login (nama, avatar/foto) otomatis tersinkron ke database.
-
-### Database (Lovable Cloud)
-Dua tabel + RLS:
-- `profiles` — id, display_name, avatar_emoji, avatar_url, created_at
-  - Auto-buat via trigger saat user signup.
-  - RLS: pengguna bisa baca semua (untuk leaderboard), hanya bisa update miliknya sendiri.
-- `scores` — id, user_id, total_score, level, organisms_played, updated_at
-  - RLS: baca semua, upsert hanya milik sendiri.
-- Trigger otomatis membuat profile + scores row saat user baru daftar.
-
-### Storage
-- Bucket `avatars` (public) untuk upload foto profil.
-
-### Leaderboard
-Komponen leaderboard di halaman Profil:
-- Jika user **login** → query top 20 dari tabel `scores` join `profiles`, urut skor desc, tampilkan peringkat asli + highlight baris milik user.
-- Jika **belum login** → tampilkan pesan "Masuk untuk melihat leaderboard global" + tombol login.
-- Hapus data dummy Aria/Bima/dst.
-
-### Sinkronisasi skor
-Setiap selesai bermain (`addResult` di `src/game/profile.ts`):
-- Tetap simpan ke localStorage (mode tamu).
-- Jika user login → upsert skor ke tabel `scores` di Cloud.
-
----
-
-## File yang akan dibuat/diubah
-
-**Baru**
-- `src/routes/auth.tsx` — halaman login Google
-- `src/integrations/supabase/*` — otomatis dibuat saat Cloud aktif
-- `src/hooks/useAuthUser.ts` — hook session + profile
-- `src/lib/leaderboard.functions.ts` — server fn ambil top scores
-- `src/lib/sync-score.functions.ts` — upsert skor user
-- Migrasi SQL: tabel `profiles`, `scores`, trigger, RLS, bucket `avatars`
-
-**Diubah**
-- `src/routes/profile.tsx` — upload foto, leaderboard real, status login
-- `src/routes/play.$id.tsx` — tombol kembali kunci dikotom
-- `src/routes/menu.tsx` — tombol login/logout di header
-- `src/game/profile.ts` — dukung `avatarUrl` + sync ke Cloud
-- `src/components/game/Logo.tsx` (mungkin) — tidak perlu
-
-## Catatan Teknis (boleh diabaikan)
-
-- Google OAuth via broker Lovable (`lovable.auth.signInWithOAuth("google")`).
-- `requireSupabaseAuth` untuk semua server fn yang menulis skor.
-- Leaderboard fn pakai `supabaseAdmin` (read-only, kolom aman saja) agar tamu juga bisa lihat.
-- Foto upload divalidasi ≤2MB, tipe image/*.
-
-Setuju saya lanjutkan dengan rencana ini?
+1. **Beri tahu email saya** sekarang (lebih aman).
+2. **Pakai tombol "Klaim Admin"** sekali pakai (lebih fleksibel kalau belum tahu email).
