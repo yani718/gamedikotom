@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as SettingsRouteImport } from './routes/settings'
+import { Route as RoomsRouteImport } from './routes/rooms'
 import { Route as ProfileRouteImport } from './routes/profile'
 import { Route as MenuRouteImport } from './routes/menu'
 import { Route as GalleryRouteImport } from './routes/gallery'
@@ -20,6 +21,11 @@ import { Route as PlayIdRouteImport } from './routes/play.$id'
 const SettingsRoute = SettingsRouteImport.update({
   id: '/settings',
   path: '/settings',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RoomsRoute = RoomsRouteImport.update({
+  id: '/rooms',
+  path: '/rooms',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ProfileRoute = ProfileRouteImport.update({
@@ -59,6 +65,7 @@ export interface FileRoutesByFullPath {
   '/gallery': typeof GalleryRoute
   '/menu': typeof MenuRoute
   '/profile': typeof ProfileRoute
+  '/rooms': typeof RoomsRoute
   '/settings': typeof SettingsRoute
   '/play/$id': typeof PlayIdRoute
 }
@@ -68,6 +75,7 @@ export interface FileRoutesByTo {
   '/gallery': typeof GalleryRoute
   '/menu': typeof MenuRoute
   '/profile': typeof ProfileRoute
+  '/rooms': typeof RoomsRoute
   '/settings': typeof SettingsRoute
   '/play/$id': typeof PlayIdRoute
 }
@@ -78,6 +86,7 @@ export interface FileRoutesById {
   '/gallery': typeof GalleryRoute
   '/menu': typeof MenuRoute
   '/profile': typeof ProfileRoute
+  '/rooms': typeof RoomsRoute
   '/settings': typeof SettingsRoute
   '/play/$id': typeof PlayIdRoute
 }
@@ -89,6 +98,7 @@ export interface FileRouteTypes {
     | '/gallery'
     | '/menu'
     | '/profile'
+    | '/rooms'
     | '/settings'
     | '/play/$id'
   fileRoutesByTo: FileRoutesByTo
@@ -98,6 +108,7 @@ export interface FileRouteTypes {
     | '/gallery'
     | '/menu'
     | '/profile'
+    | '/rooms'
     | '/settings'
     | '/play/$id'
   id:
@@ -107,6 +118,7 @@ export interface FileRouteTypes {
     | '/gallery'
     | '/menu'
     | '/profile'
+    | '/rooms'
     | '/settings'
     | '/play/$id'
   fileRoutesById: FileRoutesById
@@ -117,6 +129,7 @@ export interface RootRouteChildren {
   GalleryRoute: typeof GalleryRoute
   MenuRoute: typeof MenuRoute
   ProfileRoute: typeof ProfileRoute
+  RoomsRoute: typeof RoomsRoute
   SettingsRoute: typeof SettingsRoute
   PlayIdRoute: typeof PlayIdRoute
 }
@@ -128,6 +141,13 @@ declare module '@tanstack/react-router' {
       path: '/settings'
       fullPath: '/settings'
       preLoaderRoute: typeof SettingsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/rooms': {
+      id: '/rooms'
+      path: '/rooms'
+      fullPath: '/rooms'
+      preLoaderRoute: typeof RoomsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/profile': {
@@ -181,6 +201,7 @@ const rootRouteChildren: RootRouteChildren = {
   GalleryRoute: GalleryRoute,
   MenuRoute: MenuRoute,
   ProfileRoute: ProfileRoute,
+  RoomsRoute: RoomsRoute,
   SettingsRoute: SettingsRoute,
   PlayIdRoute: PlayIdRoute,
 }
