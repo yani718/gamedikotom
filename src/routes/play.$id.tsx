@@ -1,15 +1,21 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { AnimatePresence, motion } from "framer-motion";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Logo } from "@/components/game/Logo";
 import { ParticleBg } from "@/components/game/ParticleBg";
 import { Watermark } from "@/components/game/Watermark";
-import { getOrganism, organisms } from "@/data/organisms";
+import { getOrganism } from "@/data/organisms";
 import { ALL_CHIPS, classify, rootKey, type DichotomousNode } from "@/game/dichotomousKey";
 import { addResult, gradeFor, loadProfile } from "@/game/profile";
+import { Timer } from "@/components/game/Timer";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuthUser } from "@/hooks/useAuthUser";
 
 export const Route = createFileRoute("/play/$id")({
   head: () => ({ meta: [{ title: "Investigasi Organisme — DichoLife Explorer" }, { name: "description", content: "Investigasi organisme dengan kunci dikotom interaktif." }] }),
+  validateSearch: (s: Record<string, unknown>) => ({
+    room: typeof s.room === "string" ? s.room : undefined,
+  }),
   component: Play,
 });
 
@@ -17,8 +23,10 @@ type Phase = "investigate" | "key" | "result";
 
 function Play() {
   const { id } = Route.useParams();
+  const search = Route.useSearch();
   const navigate = useNavigate();
   const organism = getOrganism(id);
+  const { user } = useAuthUser();
 
   const [phase, setPhase] = useState<Phase>("investigate");
   const [chips, setChips] = useState<string[]>([]);
@@ -28,6 +36,30 @@ function Play() {
   const [wrong, setWrong] = useState(0);
   const [result, setResult] = useState<string | null>(null);
   const [showConfetti, setShowConfetti] = useState(false);
+
+  // Room mode state
+  const roomCode = search.room;
+  const [roomMeta, setRoomMeta] = useState<{
+    id: string;
+    started_at: string | null;
+    time_limit_sec: number;
+    code: string;
+  } | null>(null);
+  const reportedRef = useRef(false);
+
+  useEffect(() => {
+    if (!roomCode) return;
+    let mounted = true;
+    supabase
+      .from("rooms")
+      .select("id, started_at, time_limit_sec, code")
+      .eq("code", roomCode)
+      .maybeSingle()
+      .then(({ data }) => {
+        if (mounted && data) setRoomMeta(data as never);
+      });
+    return () => { mounted = false; };
+  }, [roomCode]);
 
   if (!organism) {
     return (
@@ -86,12 +118,38 @@ function Play() {
     const stepsTaken = path.length + 1;
     const chipBonus = Math.min(150, matchedChips.length * 25 + noteHits.length * 15);
     const penalty = totalWrong * 220 + Math.max(0, stepsTaken - 5) * 10;
-    const score = Math.max(50, base + chipBonus - penalty);
+    let score = Math.max(50, base + chipBonus - penalty);
+    // Speed bonus for room mode
+    if (roomMeta?.started_at && roomMeta.time_limit_sec) {
+      const elapsed = Math.max(0, (Date.now() - new Date(roomMeta.started_at).getTime()) / 1000);
+      const remaining = Math.max(0, roomMeta.time_limit_sec - elapsed);
+      const speedBonus = Math.round((remaining / roomMeta.time_limit_sec) * 300);
+      score += speedBonus;
+    }
     const g = gradeFor(score);
     addResult(loadProfile(), { id: organism!.id, result: leaf, score, grade: g.grade });
+    // Report to room
+    if (roomMeta?.id && user && !reportedRef.current) {
+      reportedRef.current = true;
+      supabase
+        .from("room_players")
+        .update({
+          finished_at: new Date().toISOString(),
+          score,
+          result_leaf: leaf,
+        })
+        .eq("room_id", roomMeta.id)
+        .eq("user_id", user.id)
+        .then(() => {});
+    }
     setShowConfetti(true);
     setTimeout(() => setShowConfetti(false), 3500);
     setPhase("result");
+  }
+
+  function timeExpired() {
+    if (phase === "result") return;
+    finishGame(truth.result, wrong + 1);
   }
 
   return (
@@ -100,10 +158,25 @@ function Play() {
       <Watermark />
       <header className="mx-auto flex max-w-6xl items-center justify-between gap-3 px-4 pt-6 sm:px-6 sm:pt-8">
         <Link to="/menu"><Logo size="sm" /></Link>
-        <Link to="/gallery" className="glass rounded-full px-3 py-1.5 text-xs sm:px-4 sm:py-2 sm:text-sm">← Galeri</Link>
+        {roomCode ? (
+          <Link to="/rooms/$code" params={{ code: roomCode }} className="glass rounded-full px-3 py-1.5 text-xs sm:px-4 sm:py-2 sm:text-sm">
+            ← Room {roomCode}
+          </Link>
+        ) : (
+          <Link to="/gallery" className="glass rounded-full px-3 py-1.5 text-xs sm:px-4 sm:py-2 sm:text-sm">← Galeri</Link>
+        )}
       </header>
 
       <main className="mx-auto max-w-5xl px-4 py-6 sm:px-6 sm:py-8">
+        {roomMeta?.started_at && phase !== "result" && (
+          <div className="mb-4">
+            <Timer
+              startedAt={new Date(roomMeta.started_at).getTime()}
+              limitSec={roomMeta.time_limit_sec}
+              onExpire={timeExpired}
+            />
+          </div>
+        )}
         {/* Subject card */}
         <motion.section
           initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
