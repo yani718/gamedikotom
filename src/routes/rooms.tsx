@@ -33,7 +33,7 @@ function randomCode() {
 }
 
 function RoomsPage() {
-  const { user, profile } = useAuthUser();
+  const { user, profile, loading: authLoading } = useAuthUser();
   const navigate = useNavigate();
   const [joinCode, setJoinCode] = useState("");
   const [organismId, setOrganismId] = useState(organisms[0].id);
@@ -44,11 +44,8 @@ function RoomsPage() {
 
   // 🔒 Wajib login untuk mengakses mode berkelompok
   useEffect(() => {
-    if (user === null) {
-      const t = setTimeout(() => navigate({ to: "/auth" }), 1200);
-      return () => clearTimeout(t);
-    }
-  }, [user, navigate]);
+    if (!authLoading && !user) navigate({ to: "/auth" });
+  }, [authLoading, user, navigate]);
 
   useEffect(() => {
     let mounted = true;
@@ -130,6 +127,9 @@ function RoomsPage() {
 
   const orgMap = Object.fromEntries(organisms.map((o) => [o.id, o]));
 
+  if (authLoading) {
+    return <div className="grid min-h-screen place-items-center text-sm text-muted-foreground">Memuat…</div>;
+  }
   if (!user) {
     return (
       <div className="relative min-h-screen">
