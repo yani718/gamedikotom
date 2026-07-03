@@ -48,6 +48,11 @@ function RoomLobby() {
   const [profiles, setProfiles] = useState<Record<string, ProfileRow>>({});
   const [loading, setLoading] = useState(true);
 
+  // 🔒 Wajib login
+  useEffect(() => {
+    if (user === null) navigate({ to: "/auth" });
+  }, [user, navigate]);
+
   // Load room + players
   useEffect(() => {
     let mounted = true;
