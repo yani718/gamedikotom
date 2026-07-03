@@ -41,12 +41,17 @@ type ProfileRow = {
 
 function RoomLobby() {
   const { code } = Route.useParams();
-  const { user } = useAuthUser();
+  const { user, loading: authLoading } = useAuthUser();
   const navigate = useNavigate();
   const [room, setRoom] = useState<Room | null>(null);
   const [players, setPlayers] = useState<PlayerRow[]>([]);
   const [profiles, setProfiles] = useState<Record<string, ProfileRow>>({});
   const [loading, setLoading] = useState(true);
+
+  // 🔒 Wajib login
+  useEffect(() => {
+    if (!authLoading && !user) navigate({ to: "/auth" });
+  }, [authLoading, user, navigate]);
 
   // Load room + players
   useEffect(() => {

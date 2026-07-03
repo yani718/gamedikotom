@@ -33,7 +33,7 @@ function randomCode() {
 }
 
 function RoomsPage() {
-  const { user, profile } = useAuthUser();
+  const { user, profile, loading: authLoading } = useAuthUser();
   const navigate = useNavigate();
   const [joinCode, setJoinCode] = useState("");
   const [organismId, setOrganismId] = useState(organisms[0].id);
@@ -41,6 +41,11 @@ function RoomsPage() {
   const [rooms, setRooms] = useState<Room[]>([]);
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState<string | null>(null);
+
+  // 🔒 Wajib login untuk mengakses mode berkelompok
+  useEffect(() => {
+    if (!authLoading && !user) navigate({ to: "/auth" });
+  }, [authLoading, user, navigate]);
 
   useEffect(() => {
     let mounted = true;
@@ -122,6 +127,29 @@ function RoomsPage() {
 
   const orgMap = Object.fromEntries(organisms.map((o) => [o.id, o]));
 
+  if (authLoading) {
+    return <div className="grid min-h-screen place-items-center text-sm text-muted-foreground">Memuat…</div>;
+  }
+  if (!user) {
+    return (
+      <div className="relative min-h-screen">
+        <ParticleBg density={10} />
+        <div className="grid min-h-screen place-items-center px-4">
+          <div className="glass-strong max-w-md rounded-3xl p-6 text-center sm:p-8">
+            <div className="text-4xl">🔒</div>
+            <h2 className="mt-2 font-display text-xl font-black sm:text-2xl">Login Dulu Ya!</h2>
+            <p className="mt-2 text-sm text-muted-foreground">
+              Mode berkelompok hanya bisa dimainkan setelah kamu masuk ke akun.
+            </p>
+            <Link to="/auth" className="mt-4 inline-block rounded-2xl bg-emerald-grad px-6 py-3 font-bold text-primary-foreground shadow-glow">
+              🔑 Masuk / Daftar
+            </Link>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="relative min-h-screen pb-20">
       <ParticleBg density={14} />
@@ -143,12 +171,26 @@ function RoomsPage() {
           <p className="text-sm text-muted-foreground">
             Buat room dan bagikan <b>kode 6 digit</b> ke teman-temanmu. Minimal 2 pemain untuk mulai.
           </p>
-          {!user && (
-            <div className="mt-3 rounded-xl bg-amber-500/10 p-3 text-sm text-amber-200 ring-1 ring-amber-500/30">
-              Kamu harus <Link to="/auth" className="underline">masuk</Link> dulu untuk membuat atau gabung room.
-            </div>
-          )}
         </motion.div>
+
+        {/* 📖 Cara Bermain Kelompok */}
+        <motion.section
+          initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}
+          className="glass mt-4 rounded-3xl p-5 sm:p-6"
+        >
+          <h2 className="font-display text-lg font-bold sm:text-xl">📖 Cara Bermain Kelompok</h2>
+          <ol className="mt-3 space-y-2 text-sm text-muted-foreground sm:text-[15px]">
+            <li><b className="text-foreground">1.</b> Satu pemain jadi <b>Host</b> → tekan <b>“Buat Room”</b>, pilih organisme & batas waktu.</li>
+            <li><b className="text-foreground">2.</b> Host membagikan <b>kode 6 digit</b> ke teman-temannya (WA, chat, dsb).</li>
+            <li><b className="text-foreground">3.</b> Teman-teman membuka menu → <b>Mode Berkelompok</b> → masukkan kode → <b>Gabung</b>.</li>
+            <li><b className="text-foreground">4.</b> Setelah semua siap (minimal 2 pemain), Host menekan <b>▶ Mulai Permainan</b>.</li>
+            <li><b className="text-foreground">5.</b> Semua pemain mengerjakan <b>kunci dikotom</b> bersamaan — timer berjalan.</li>
+            <li><b className="text-foreground">6.</b> Selesai lebih cepat = <b>bonus skor</b>. Peringkat akhir tampil di lobby.</li>
+          </ol>
+          <div className="mt-3 rounded-xl bg-emerald/10 p-3 text-xs text-emerald ring-1 ring-emerald/30">
+            💡 Tip: bisa dimainkan di HP! Cukup buka link permainan yang sama di browser masing-masing.
+          </div>
+        </motion.section>
 
         <div className="mt-6 grid gap-6 md:grid-cols-2">
           {/* Create */}
