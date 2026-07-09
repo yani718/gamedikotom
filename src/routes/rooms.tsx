@@ -246,7 +246,8 @@ function RoomsPage() {
                 onChange={(e) => setJoinCode(e.target.value.replace(/\D/g, "").slice(0, 6))}
                 placeholder="123456"
                 inputMode="numeric"
-                className="w-full rounded-2xl bg-input px-4 py-4 text-center font-display text-2xl font-black tracking-[0.5em] focus:outline-none focus:ring-2 focus:ring-emerald"
+                autoComplete="one-time-code"
+                className="w-full rounded-2xl bg-input px-2 py-4 text-center font-display text-xl font-black tracking-[0.25em] focus:outline-none focus:ring-2 focus:ring-emerald sm:text-2xl sm:tracking-[0.4em]"
               />
               <button
                 onClick={() => joinCode.length === 6 && joinRoom(joinCode)}

@@ -172,26 +172,47 @@ function RoomLobby() {
       <main className="mx-auto max-w-4xl px-4 py-6 sm:px-6 sm:py-8">
         <motion.section
           initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }}
-          className="glass-strong rounded-3xl p-5 sm:p-7"
+          className="glass-strong rounded-3xl p-4 sm:p-7"
         >
-          <div className="flex flex-wrap items-center justify-between gap-3">
-            <div>
-              <div className="text-xs uppercase tracking-[0.3em] text-emerald">Kode Room</div>
-              <div className="font-display text-4xl font-black tracking-[0.4em] sm:text-5xl">
+          <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3">
+            <div className="min-w-0">
+              <div className="text-[10px] uppercase tracking-[0.3em] text-emerald sm:text-xs">Kode Room</div>
+              <div className="font-display text-3xl font-black tracking-[0.2em] sm:text-5xl sm:tracking-[0.4em]">
                 {room.code}
               </div>
               <p className="mt-1 text-xs text-muted-foreground">
                 Bagikan kode ini ke teman-temanmu!
               </p>
             </div>
-            <button
-              onClick={() => {
-                navigator.clipboard?.writeText(room.code);
-              }}
-              className="glass rounded-full px-4 py-2 text-sm hover:text-emerald"
-            >
-              📋 Salin Kode
-            </button>
+            <div className="flex shrink-0 flex-col gap-2">
+              <button
+                onClick={async () => {
+                  const url = `${window.location.origin}/rooms/${room.code}`;
+                  const shareData = {
+                    title: "DichoLife Explorer — Room",
+                    text: `Yuk gabung roomku! Kode: ${room.code}`,
+                    url,
+                  };
+                  if (navigator.share) {
+                    try { await navigator.share(shareData); } catch { /* cancelled */ }
+                  } else {
+                    await navigator.clipboard?.writeText(`${shareData.text}\n${url}`);
+                    alert("Link & kode disalin!");
+                  }
+                }}
+                className="glass rounded-full px-3 py-2 text-xs hover:text-emerald sm:px-4 sm:text-sm"
+              >
+                📤 Bagikan
+              </button>
+              <button
+                onClick={() => {
+                  navigator.clipboard?.writeText(room.code);
+                }}
+                className="glass rounded-full px-3 py-2 text-xs hover:text-emerald sm:px-4 sm:text-sm"
+              >
+                📋 Salin
+              </button>
+            </div>
           </div>
 
           {organism && (
@@ -207,14 +228,14 @@ function RoomLobby() {
             </div>
           )}
 
-          <div className="mt-5 flex flex-wrap gap-2">
+          <div className="mt-5 flex flex-col gap-2 sm:flex-row sm:flex-wrap">
             {!inRoom && room.status === "waiting" && (
-              <button onClick={joinNow} className="rounded-2xl bg-emerald-grad px-5 py-2.5 text-sm font-bold text-primary-foreground shadow-glow">
+              <button onClick={joinNow} className="w-full rounded-2xl bg-emerald-grad px-5 py-2.5 text-sm font-bold text-primary-foreground shadow-glow sm:w-auto">
                 Gabung Sekarang
               </button>
             )}
             {inRoom && !isHost && room.status === "waiting" && (
-              <button onClick={leave} className="glass rounded-2xl px-5 py-2.5 text-sm hover:text-rose-300">
+              <button onClick={leave} className="w-full rounded-2xl px-5 py-2.5 text-sm hover:text-rose-300 glass sm:w-auto">
                 Keluar
               </button>
             )}
@@ -223,7 +244,7 @@ function RoomLobby() {
                 <button
                   onClick={start}
                   disabled={players.length < 2}
-                  className="rounded-2xl bg-emerald-grad px-6 py-2.5 text-sm font-bold text-primary-foreground shadow-glow disabled:opacity-50"
+                  className="w-full rounded-2xl bg-emerald-grad px-6 py-2.5 text-sm font-bold text-primary-foreground shadow-glow disabled:opacity-50 sm:w-auto"
                 >
                   ▶ Mulai Permainan ({players.length}/2+)
                 </button>
@@ -234,7 +255,7 @@ function RoomLobby() {
                       navigate({ to: "/rooms" });
                     }
                   }}
-                  className="glass rounded-2xl px-5 py-2.5 text-sm hover:text-rose-300"
+                  className="glass w-full rounded-2xl px-5 py-2.5 text-sm hover:text-rose-300 sm:w-auto"
                 >
                   Tutup Room
                 </button>
